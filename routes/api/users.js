@@ -10,13 +10,13 @@ const saltHash = 10;
 const User = require('../../models/users.models')
 
 /* GET users listing. */
-router.get('/', (req, res, next) => {
+router.get('/users', (req, res, next) => {
   res.json({
     message: 'users api ok.'
   });
 });
 
-router.post('/register', (req, res, next) => {
+router.post('/users/register', (req, res, next) => {
   User.findOne({
     email: req.body.email
   }).then((user) => {
@@ -39,11 +39,17 @@ router.post('/register', (req, res, next) => {
         bcrypt.hash(newUser.password, salt, (err, hash) => {
           if (err) throw err;
           newUser.password = hash;
-          newUser
-            .save()
+          newUser.save()
             .then(user => {
               res.json({
-                data: user.email
+                message: "user created successfully.",
+                data: {
+                  email: user.email
+                },
+                token: jwt.sign({
+                  id: user._id,
+                  email: user.email
+                }, 'APIPiscki')
               })
             })
             .catch(err => console.error(err))
